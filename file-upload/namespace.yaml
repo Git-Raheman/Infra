@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: file-upload
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: file-upload-quota
+  namespace: file-upload
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 512Mi
+    limits.cpu: "2"
+    limits.memory: 512Mi

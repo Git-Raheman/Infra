@@ -18,57 +18,52 @@ mindmap
         Code_Backend_Frontend
         Local_Docker_Compose
         App_Dockerfiles
-        CI_Workflows_GithubActions
+        Jenkinsfiles_Isolated
       Rules
         No_Secrets_Committed
         Isolated_App_Folders
     Infra_Repo(Infra Repo: github.com/Git-Raheman/infra)
       Structure
-        ArgoCD_Manifests
-        Helm_Values
-        Envs_Dev_Prod
-        K8s_Manifests
+        ArgoCD_App_Manifests
+        K8s_YAML_Manifests
       Contents
+        Namespaces_ResourceQuotas
         Deployments
-        Services_Ingress
-        ConfigMaps_RBAC
+        Services_LoadBalancers
       Rules
         Source_of_Truth
         GitOps_Driven
     CICD(CI/CD Pipeline)
       Continuous_Integration
-        GitHub_Actions
-        Path_Filters_Isolation
+        Jenkins_Pipelines
+        Shared_Library_Approach
         Docker_Build_Push
-        Sonar_Scan
       Continuous_Deployment
-        Manifest_Update
+        Manifest_Update_sed
         Git_Commit
-        ArgoCD_Sync
+        ArgoCD_Automated_Sync
     Kubernetes(Kubernetes Cluster)
       Nodes
         Master_192_168_50_1
         Worker_192_168_50_2
       Namespaces
-        Default_Apps
-        DevOps_Tools
-        ArgoCD_System
-        Kube_System
+        App_blog_auth
+        App_chat_app
+        App_file_upload
+        App_todo_app
+        devops_tools_Jenkins
+        argocd
     Security(Security & Storage)
       Storage
         CSI_NFS_Driver
         Persistent_Volumes
       Security
         ImagePullSecrets
-        RBAC_Policies
-        Network_Policies
-    Monitoring(Observability)
-      Metrics
-        Metrics_Server
-        K8s_Dashboard
-      Future
-        Prometheus
-        Grafana
+        Resource_Quotas
+    Networking(Networking)
+      LoadBalancer
+        MetalLB_Pool
+        Fixed_IPs_per_App
 ```
 
 ## 🏗️ Repo Responsibility Mapping
@@ -76,9 +71,9 @@ mindmap
 | Feature | Apps Repository | Infra Repository |
 | :--- | :--- | :--- |
 | **Owner** | Developers | Platform/DevOps Engineers |
-| **Content** | Source Code, Dockerfiles, CI Workflows | K8s Manifests, Helm Charts, ArgoCD Apps |
-| **Secrets** | Local `.env` (Ignored by Git) | SealedSecrets / Vault References |
-| **Versions** | Application Version (package.json) | Image Tag (values.yaml) |
+| **Content** | Source Code, Dockerfiles, Jenkinsfiles | K8s YAML Manifests, ArgoCD Apps |
+| **Secrets** | Local `.env` (Ignored by Git) | Kubernetes Secrets References |
+| **Versions** | Application Version (package.json) | Image Tag (updated by Jenkins) |
 | **Purpose** | Building "The Application" | Defining "The Environment" |
 
 ## 🔄 GitOps Flow Diagram
@@ -87,19 +82,19 @@ mindmap
 sequenceDiagram
     autonumber
     participant AppRepo as Apps Repo (GitHub)
-    participant CI as CI Pipeline (GH Actions)
+    participant CI as CI Pipeline (Jenkins)
     participant Reg as Registry (registry-raheman.in)
     participant InfraRepo as Infra Repo (GitHub)
     participant Argo as ArgoCD (K8s)
     participant K8s as Cluster Nodes
 
-    AppRepo->>CI: Developer Push (Path Filter)
-    CI->>CI: Build & Test
-    CI->>Reg: Push Image with Tag
-    CI->>InfraRepo: Update Image Tag in Manifests
-    InfraRepo->>Argo: Git Commit Detected
-    Argo->>K8s: Sync State (Rolling Update)
-    K8s->>Reg: Pull New Image
+    AppRepo->>CI: Developer Commit (Poll SCM / Webhook)
+    CI->>CI: Docker Build
+    CI->>Reg: Push Image with BUILD_NUMBER Tag
+    CI->>InfraRepo: git clone, sed update, git push
+    InfraRepo->>Argo: Automated Sync Detects Change
+    Argo->>K8s: Apply Updated YAML (Rolling Update)
+    K8s->>Reg: Pull New Image using Secret
 ```
 
 ---

@@ -1,0 +1,83 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: blog-auth
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Git-Raheman/infra.git
+    targetRevision: main
+    path: blog-auth
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: blog-auth
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: chat-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Git-Raheman/infra.git
+    targetRevision: main
+    path: chat-app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: chat-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: file-upload
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Git-Raheman/infra.git
+    targetRevision: main
+    path: file-upload
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: file-upload
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: todo-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Git-Raheman/infra.git
+    targetRevision: main
+    path: todo-app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: todo-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

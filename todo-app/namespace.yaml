@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: todo-app
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: todo-app-quota
+  namespace: todo-app
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 512Mi
+    limits.cpu: "2"
+    limits.memory: 512Mi
