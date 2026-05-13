@@ -4,7 +4,7 @@ metadata:
   name: todo-app
   namespace: argocd
 spec:
-  project: todo-app
+  project: default
   source:
     repoURL: https://github.com/Git-Raheman/infra.git
     targetRevision: main
