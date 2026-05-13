@@ -1,10 +1,29 @@
 apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: todo-app
+  namespace: argocd
+spec:
+  description: Todo App Project
+  sourceRepos:
+    - https://github.com/Git-Raheman/infra.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: todo-app
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: todo-app
   namespace: argocd
 spec:
-  project: default
+  project: todo-app
   source:
     repoURL: https://github.com/Git-Raheman/infra.git
     targetRevision: main
