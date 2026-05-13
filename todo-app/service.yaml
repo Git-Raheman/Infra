@@ -1,65 +1,53 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend
+  name: todo-app-backend
   namespace: todo-app
 spec:
   type: ClusterIP
   selector:
-    app: todo-backend
+    app: todo-app-backend
   ports:
-    - port: 5000
-      targetPort: 5000
+  - port: 5000
+    targetPort: 5000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+  name: todo-app-frontend
   namespace: todo-app
 spec:
   type: ClusterIP
   selector:
-    app: todo-frontend
+    app: todo-app-frontend
   ports:
-    - port: 3000
-      targetPort: 3000
+  - port: 3000
+    targetPort: 3000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: db
+  name: todo-app-db
   namespace: todo-app
 spec:
   type: ClusterIP
   selector:
-    app: mongodb
+    app: todo-app-db
   ports:
-    - port: 27017
-      targetPort: 27017
+  - port: 27017
+    targetPort: 27017
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: todo-nginx
+  name: todo-app-nginx
   namespace: todo-app
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.50.83
 spec:
   type: LoadBalancer
-  loadBalancerIP: 192.168.50.83
   selector:
-    app: todo-nginx
+    app: todo-app-nginx
   ports:
-    - port: 80
-      targetPort: 80
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mongo-pvc
-  namespace: todo-app
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: nfs-client
-  resources:
-    requests:
-      storage: 2Gi
+  - port: 80
+    targetPort: 80

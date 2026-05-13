@@ -1,166 +1,104 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-backend
-  namespace: todo-app
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: todo-backend
-  template:
-    metadata:
-      labels:
-        app: todo-backend
-    spec:
-      imagePullSecrets:
-        - name: registry-raheman-secret
-      containers:
-        - name: backend
-          image: registry-raheman.in/todo-app-backend:latest
-          ports:
-            - containerPort: 5000
-          env:
-            - name: PORT
-              value: "5000"
-            - name: MONGODB_URI
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secrets
-                  key: uri
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 500m
-              memory: 256Mi
-          readinessProbe:
-            httpGet:
-              path: /api/health
-              port: 5000
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /api/health
-              port: 5000
-            initialDelaySeconds: 15
-            periodSeconds: 20
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: todo-frontend
+  name: todo-app-backend
   namespace: todo-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: todo-frontend
+      app: todo-app-backend
   template:
     metadata:
       labels:
-        app: todo-frontend
+        app: todo-app-backend
     spec:
-      imagePullSecrets:
-        - name: registry-raheman-secret
       containers:
-        - name: frontend
-          image: registry-raheman.in/todo-app-frontend:latest
-          ports:
-            - containerPort: 3000
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 500m
-              memory: 256Mi
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 15
-            periodSeconds: 20
+      - name: backend
+        image: registry-raheman.in/todo-app-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        env:
+        - name: PORT
+          value: "5000"
+        - name: MONGODB_URI
+          value: "mongodb://admin:password@todo-app-db:27017/todoapp?authSource=admin"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-nginx
+  name: todo-app-frontend
   namespace: todo-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: todo-nginx
+      app: todo-app-frontend
   template:
     metadata:
       labels:
-        app: todo-nginx
+        app: todo-app-frontend
     spec:
-      imagePullSecrets:
-        - name: registry-raheman-secret
       containers:
-        - name: nginx
-          image: registry-raheman.in/todo-app-nginx:latest
-          ports:
-            - containerPort: 80
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 500m
-              memory: 256Mi
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 15
-            periodSeconds: 20
+      - name: frontend
+        image: registry-raheman.in/todo-app-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-db
+  name: todo-app-nginx
   namespace: todo-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mongodb
+      app: todo-app-nginx
   template:
     metadata:
       labels:
-        app: mongodb
+        app: todo-app-nginx
     spec:
       containers:
-        - name: mongodb
-          image: mongo:latest
-          ports:
-            - containerPort: 27017
-          env:
-            - name: MONGO_INITDB_ROOT_USERNAME
-              value: "admin"
-            - name: MONGO_INITDB_ROOT_PASSWORD
-              value: "password"
-          volumeMounts:
-            - name: mongo-storage
-              mountPath: /data/db
+      - name: nginx
+        image: registry-raheman.in/todo-app-nginx:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app-db
+  namespace: todo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-app-db
+  template:
+    metadata:
+      labels:
+        app: todo-app-db
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: "admin"
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: "password"
+        volumeMounts:
+        - name: db-data
+          mountPath: /data/db
       volumes:
-        - name: mongo-storage
-          persistentVolumeClaim:
-            claimName: mongo-pvc
+      - name: db-data
+        hostPath:
+          path: /data/todo-app
+          type: DirectoryOrCreate
