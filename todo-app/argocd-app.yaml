@@ -9,7 +9,9 @@ spec:
     - https://github.com/Git-Raheman/infra.git
   destinations:
     - server: https://kubernetes.default.svc
-      namespace: todo-app
+      namespace: todo-app        # your app namespace
+    - server: https://kubernetes.default.svc
+      namespace: argocd          # ? ADD THIS
   clusterResourceWhitelist:
     - group: '*'
       kind: '*'
