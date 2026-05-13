@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: registry-raheman.in/todo-app-backend:latest
+        image: registry-raheman.in/todo-app-backend:5
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: registry-raheman.in/todo-app-frontend:latest
+        image: registry-raheman.in/todo-app-frontend:5
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: registry-raheman.in/todo-app-nginx:latest
+        image: registry-raheman.in/todo-app-nginx:5
         imagePullPolicy: Always
         ports:
         - containerPort: 80
